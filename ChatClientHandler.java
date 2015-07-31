@@ -59,6 +59,9 @@ public class ChatClientHandler extends Thread{
                         send("Tell Command : tell name message");
                     }
                 }
+                else if(command[0].equalsIgnoreCase("help")){
+                    help();
+                }
                 else if(command[0].equalsIgnoreCase("whoami")){
                     whoami();
                 }
@@ -239,6 +242,8 @@ public class ChatClientHandler extends Thread{
             send(name+" is used");
         }
     }
+    
+    public void help() throws IOException{send("post, whoami, bye, name, help, users, tell, reject");}
 
     public void users() throws IOException{
         List nameList = new ArrayList();
