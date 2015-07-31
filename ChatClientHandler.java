@@ -31,6 +31,9 @@ public class ChatClientHandler extends Thread{
                         send("Name Command : name username");
                     }
                 }
+                else if(command[0].equalsIgnoreCase("post")){
+                    post();
+                }
                 else if(command[0].equalsIgnoreCase("whoami")){
                     whoami();
                 }
@@ -88,6 +91,34 @@ public class ChatClientHandler extends Thread{
     //人に送るコマンドは最初に"\r\n"を送る事で、相手に改行してからメッセージの表示を行い、
     //そのあとに空の文字列を送る事で、"> "の表示を行っている
     //これらはsendコマンドに
+    
+    public void post(String message) throws IOException{
+        List nameList = new ArrayList(); //送るhandlerの格納用配列
+        String sendName = "";
+        if(ClientList.size() > 1){ //自分以外にも人がいるとき
+            for(int i = 0; i < ClientList.size(); i++){
+                ChatClientHandler handler = (ChatClientHandler)ClientList.get(i);
+                if(handler != this){ //自分以外にメッセージを送る
+                    handler.send("\r\n"+getClientName()+" : "+message);
+                    handler.send("");
+                    nameList.add(handler.getClientName());
+                }
+            }
+            if(nameList.size() > 0){//ユーザにrejectされてもpostできる人がいるとき
+                Collections.sort(nameList);
+                for(int i = 0; i < nameList.size(); i++){
+                    sendName = sendName + nameList.get(i); //送った人の名前を連結して行く
+                    if(nameList.size()-1 != i){ sendName =  sendName + ","; } //最後以外に","をつける処理
+                }
+                send(sendName);
+            }else{ 
+                send("no one receive message");
+            }
+        }else{
+            send("no one receive message");
+        }
+    }
+
 
     public void whoami() throws IOException{ send(getClientName()); }
 
