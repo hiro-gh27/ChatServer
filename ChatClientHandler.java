@@ -15,6 +15,9 @@ public class ChatClientHandler extends Thread{
         this.ClientList = ClientList;
         this.name = name;
     }
+    public ChatClientHandler(){
+        
+    }
 
     public void run(){
         try{
@@ -31,8 +34,19 @@ public class ChatClientHandler extends Thread{
                         send("Name Command : name username");
                     }
                 }
-                else if(command[0].equalsIgnoreCase("post")){
-                    post();
+                else if(command[0].equals("post")){
+                    if(command.length == 2){
+                        post(command[1]);
+                    }else{
+                        send("Post Command : post message");
+                    }
+                }
+                else if(command[0].equalsIgnoreCase("tell")){
+                    if(command.length == 3){
+                        tell(command[1], command[2]);
+                    }else{
+                        send("Tell Command : tell name message");
+                    }
                 }
                 else if(command[0].equalsIgnoreCase("whoami")){
                     whoami();
@@ -116,6 +130,28 @@ public class ChatClientHandler extends Thread{
             }
         }else{
             send("no one receive message");
+        }
+    }
+    
+    public void tell(String userName, String message) throws IOException{
+        boolean rejectFlag = false;
+        boolean sameNameFlag = false;
+        ChatClientHandler handler = new ChatClientHandler(); //送り先のhandlerを記憶するためのもの
+        for(int i = 0; i < ClientList.size(); i++){
+            handler = (ChatClientHandler)ClientList.get(i);
+            //送りたい人がみつかるとsameNameFlagをあげ、handlerを記憶したままループをぬける
+            if(userName.equals(handler.getClientName())) { 
+                sameNameFlag = true; //見つかりました
+                break; 
+            }
+        }
+        //sameNameFlagが上がっている場合送る
+        if(sameNameFlag){
+            handler.send("\r\n"+this.getClientName()+" -> "+handler.getClientName()+" : "+message);
+            handler.send("");
+            send(handler.getClientName());
+        }else{
+            this.send("no one receive message");
         }
     }
 
