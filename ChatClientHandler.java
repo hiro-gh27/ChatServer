@@ -23,6 +23,16 @@ public class ChatClientHandler extends Thread{
 		send("> "); 
 		String message = receive();
 		String command[] = message.split(" ");
+
+		if(command[0].equals("name")){
+		    if(command.length == 2){
+			name(command[1]);
+		    }else{
+			send("Name Command : name username");
+		    }
+		}else{
+		    send("Not Command");
+		}
 	    }
 	} catch(IOException e) {
 	    e.printStackTrace();
@@ -30,7 +40,6 @@ public class ChatClientHandler extends Thread{
 	    close();
 	}
     }
-
 
     //ゲッター
     public String getClientName(){ return name; }
@@ -63,5 +72,22 @@ public class ChatClientHandler extends Thread{
 	    out.write("\r\n");
 	}
 	out.flush();
+    }
+
+    public void name(String name) throws IOException{
+	boolean sameNameFlag = false;
+	for(int i = 0; i < ClientList.size(); i++){
+	    ChatClientHandler handler = (ChatClientHandler)ClientList.get(i);
+	    if(handler != this){ //変える名前と同じ名前がいるとsameNameFlagをあげる
+		if(name.equals(handler.getClientName())){ 
+		    sameNameFlag = true;
+		}
+	    }
+	}
+	if(!(sameNameFlag)){ 
+	    this.name = name; 
+	}else{
+	    send(name+" is used");
+	}
     }
 }
