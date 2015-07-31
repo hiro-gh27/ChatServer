@@ -16,6 +16,9 @@ public class ChatClientHandler{
 	this.name = name;
     }
 
+    //ゲッター
+    public String getClientName(){ return name; }
+
     public void open() throws IOException{
 	InputStream socketIn = socket.getInputStream();
 	OutputStream socketOut = socket.getOutputStream();
@@ -28,5 +31,11 @@ public class ChatClientHandler{
 	if(this.in != null) {try{in.close();} catch(IOException e){ }}
 	if(this.out != null) {try{out.close();} catch(IOException e){ }}
 	if(this.socket != null) {try{socket.close();} catch(IOException e){}}
+    }
+
+    public String receive() throws IOException{
+	String line = in.readLine();
+	System.out.println(getClientName()+" : "+line);
+	return line;
     }
 }
