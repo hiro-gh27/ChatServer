@@ -38,4 +38,14 @@ public class ChatClientHandler{
 	System.out.println(getClientName()+" : "+line);
 	return line;
     }
+    //文字をクライアントに表示するメソッド
+    public void send(String message) throws IOException{
+	out.write(message);
+	if(message.equals("")){
+	    out.write("> ");
+	}else if(!(message.equals("> "))){
+	    out.write("\r\n");
+	}
+	out.flush();
+    }
 }
