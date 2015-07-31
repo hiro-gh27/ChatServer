@@ -17,7 +17,7 @@ public class ChatServer{
 	    System.out.println("クライアント"+count+"が接続してきました"); //接続されるとサーバー側に表示される
 	    ChatClientHandler handler = new ChatClientHandler(socket, ClientList, "undefined"+count); //コンストラクタの呼び出し
 	    ClientList.add(handler);//handlerをクライアントリストに加える
-
+	    handler.start(); //スレッド処理
 	    count++;
 	}catch(IOException e){
 	    e.printStackTrace();

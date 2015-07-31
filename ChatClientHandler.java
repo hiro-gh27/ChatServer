@@ -2,7 +2,7 @@ import java.net.*;
 import java.util.*;
 import java.io.*;
 
-public class ChatClientHandler{
+public class ChatClientHandler extends Thread{
     
     private Socket socket ;
     private BufferedReader in;
@@ -15,6 +15,22 @@ public class ChatClientHandler{
 	this.ClientList = ClientList;
 	this.name = name;
     }
+
+    public void run(){
+	try{
+	    open();
+	    while(true){
+		send("> "); 
+		String message = receive();
+		String command[] = message.split(" ");
+	    }
+	} catch(IOException e) {
+	    e.printStackTrace();
+	} finally {
+	    close();
+	}
+    }
+
 
     //ゲッター
     public String getClientName(){ return name; }
