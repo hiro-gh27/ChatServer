@@ -9,6 +9,7 @@ public class ChatClientHandler extends Thread{
     private BufferedWriter out;
     private List ClientList;
     private String name;
+    private List rejectNameList = new LinkedList();
 
     public ChatClientHandler(Socket socket, List ClientList, String name){
         this.socket = socket;
@@ -16,7 +17,7 @@ public class ChatClientHandler extends Thread{
         this.name = name;
     }
     public ChatClientHandler(){
-        
+
     }
 
     public void run(){
@@ -39,6 +40,16 @@ public class ChatClientHandler extends Thread{
                         post(command[1]);
                     }else{
                         send("Post Command : post message");
+                    }
+                }
+                else if(command[0].equalsIgnoreCase("reject")){ 
+                    //rejectだけ2パターンあるのでオーバーロード
+                    if(command.length == 1){
+                        reject();
+                    }else if(command.length == 2){
+                        reject(command[1]);
+                    }else{
+                        send("Reject Command : reject name or reject");
                     }
                 }
                 else if(command[0].equalsIgnoreCase("tell")){
@@ -70,6 +81,7 @@ public class ChatClientHandler extends Thread{
 
     //ゲッター
     public String getClientName(){ return name; }
+    public List getRejectNameList(){ return rejectNameList; }
 
     public void open() throws IOException{
         InputStream socketIn = socket.getInputStream();
@@ -105,14 +117,22 @@ public class ChatClientHandler extends Thread{
     //人に送るコマンドは最初に"\r\n"を送る事で、相手に改行してからメッセージの表示を行い、
     //そのあとに空の文字列を送る事で、"> "の表示を行っている
     //これらはsendコマンドに
-    
+
     public void post(String message) throws IOException{
         List nameList = new ArrayList(); //送るhandlerの格納用配列
         String sendName = "";
         if(ClientList.size() > 1){ //自分以外にも人がいるとき
             for(int i = 0; i < ClientList.size(); i++){
                 ChatClientHandler handler = (ChatClientHandler)ClientList.get(i);
-                if(handler != this){ //自分以外にメッセージを送る
+                boolean rejectFlag = false;
+                //rejectNameListの中に自分がいないかの確認、いるとrejectFlagがあがる
+                for(int j = 0; j < (handler.getRejectNameList()).size(); j++){
+                    if(this == (ChatClientHandler)(handler.getRejectNameList()).get(j)){
+                        rejectFlag = true;
+                        break;
+                    }
+                }
+                if(handler != this && (!(rejectFlag))){ //自分とrejectされていた人以外にメッセージを送る
                     handler.send("\r\n"+getClientName()+" : "+message);
                     handler.send("");
                     nameList.add(handler.getClientName());
@@ -132,7 +152,7 @@ public class ChatClientHandler extends Thread{
             send("no one receive message");
         }
     }
-    
+
     public void tell(String userName, String message) throws IOException{
         boolean rejectFlag = false;
         boolean sameNameFlag = false;
@@ -145,13 +165,58 @@ public class ChatClientHandler extends Thread{
                 break; 
             }
         }
-        //sameNameFlagが上がっている場合送る
-        if(sameNameFlag){
+        //rejectNameListに入っていないかの確認
+        for(int i = 0; i < (handler.getRejectNameList()).size(); i++){
+            if(this == (ChatClientHandler)(handler.getRejectNameList()).get(i)){
+                rejectFlag = true; //rejectNameListに入っていました
+                break;
+            }
+        }
+        //rejectNameFlagが上がっていなくて、sameNameFlagが上がっている場合送る
+        if(!(rejectFlag) && sameNameFlag){
             handler.send("\r\n"+this.getClientName()+" -> "+handler.getClientName()+" : "+message);
             handler.send("");
             send(handler.getClientName());
         }else{
             this.send("no one receive message");
+        }
+    }
+    
+    //rejectは二パターンあるのでオーバーロードしている
+    //引数に名前がある場合
+    public void reject(String rejectName) throws IOException{
+        boolean rejectFlag = true;
+        //すでにrejectNameListにrejectNameが存在する場合
+        for(int i = 0; i < rejectNameList.size(); i++){
+            ChatClientHandler handler = (ChatClientHandler)rejectNameList.get(i);
+            if((handler.getClientName()).equals(rejectName)){
+                rejectNameList.remove(i);
+                rejectFlag = false;
+                break;
+            }
+        }
+        if(rejectFlag){
+            boolean nameFlag = true;
+            //rejectNameと他のclientNameが一致する場合、rejectNameListにhandlerを加える
+            for(int i = 0; i < ClientList.size(); i++){
+                ChatClientHandler handler = (ChatClientHandler)ClientList.get(i);
+                if(rejectName.equals(handler.getClientName())){
+                    rejectNameList.add(handler);
+                    nameFlag = false;
+                    break;
+                }
+            }
+            if(nameFlag){
+                send("no name");
+            }
+        }
+        reject(); //引数なしのrejectの呼び出し
+    }
+    //引数が無ければrejectNameListを表示するだけ
+    public void reject() throws IOException{
+        for(int i = 0; i < rejectNameList.size(); i++){
+            ChatClientHandler handler = (ChatClientHandler)rejectNameList.get(i);
+            send("reject name : "+handler.getClientName());
         }
     }
 
