@@ -34,6 +34,9 @@ public class ChatClientHandler extends Thread{
                 else if(command[0].equalsIgnoreCase("whoami")){
                     whoami();
                 }
+                else if(command[0].equalsIgnoreCase("users")){
+                    users();
+                }
                 else{
                     send("Not Command");
                 }
@@ -101,4 +104,22 @@ public class ChatClientHandler extends Thread{
             send(name+" is used");
         }
     }
+
+    public void users() throws IOException{
+        List nameList = new ArrayList();
+        String sendName = "";
+        for(int i = 0; i < ClientList.size(); i++){
+            ChatClientHandler handler = (ChatClientHandler)ClientList.get(i);
+            nameList.add(handler.getClientName());
+        }
+        Collections.sort(nameList);
+        for(int i = 0; i < ClientList.size(); i++){
+            sendName += nameList.get(i); //文字の結合
+            if(i != ClientList.size()-1) { 
+                sendName += "," ;
+            } //最後以外に","をつける
+        }
+        send(sendName);
+    }
+
 }
