@@ -37,6 +37,9 @@ public class ChatClientHandler extends Thread{
                 else if(command[0].equalsIgnoreCase("users")){
                     users();
                 }
+                else if(command[0].equalsIgnoreCase("bye")){
+                    bye();
+                }    
                 else{
                     send("Not Command");
                 }
@@ -120,6 +123,22 @@ public class ChatClientHandler extends Thread{
             } //最後以外に","をつける
         }
         send(sendName);
+    }
+
+    public void bye() throws IOException{
+        send("bye "+name);
+        int index = 0;
+        for(int i = 0; i < ClientList.size(); i++){
+            //ClientListの自分を探して、何番目かをindexに代入している
+            ChatClientHandler handler = (ChatClientHandler)ClientList.get(i);
+            if(handler.getClientName() == this.name){
+                index = i;
+                break;
+            }
+        }
+        //ClientNameListからの削除
+        ClientList.remove(index);
+        close();
     }
 
 }
