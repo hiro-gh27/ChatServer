@@ -9,7 +9,6 @@ public class ChatServer{
     public void listen(){	
 	try{
 	    int count = 1; //クライアントのカウント用変数
-
 	    server = new ServerSocket(18080);
 	    System.out.println("ChatServerをポート18080で起動しました");
 	    while(true){
