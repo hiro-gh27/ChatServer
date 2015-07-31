@@ -23,4 +23,10 @@ public class ChatClientHandler{
 	this.in = new BufferedReader(new InputStreamReader(socketIn));
 	this.out = new BufferedWriter(new OutputStreamWriter(socketOut));
     }
+
+    public void close(){
+	if(this.in != null) {try{in.close();} catch(IOException e){ }}
+	if(this.out != null) {try{out.close();} catch(IOException e){ }}
+	if(this.socket != null) {try{socket.close();} catch(IOException e){}}
+    }
 }
